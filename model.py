@@ -10,9 +10,7 @@ import numpy as np
 
 # Fetch team defensive stats for a season
 team_defense = leaguedashptteamdefend.LeagueDashPtTeamDefend(season='2022-23', league_id = '00')
-
-# Get the data as a dataframe
 team_defense_df = team_defense.get_data_frames()[0]
-
-# Display dataframe
 print(team_defense_df)
+
+okok
