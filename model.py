@@ -4,44 +4,61 @@ from nba_api.stats.endpoints import playergamelog, leaguedashptteamdefend, boxsc
 from nba_api.stats.endpoints import defensehub, draftboard, drafthistory, playerawards, playercareerstats, gamerotation
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
-# MOST ADVANCED STATS API ENDPOINTS ARE NOT FUNCTIONAL ATM.
+import tensorflow as tf
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Dense
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from tensorflow.keras.models import load_model
 
-# Get game-by-game stats for every single player. 
 
-bron = playergamelog.PlayerGameLog(player_id = '2544', season = '2018-19', season_type_all_star='Regular Season')
-bron_df = bron.get_data_frames()[0]
-bron_df['AVG_PTS'] = bron_df['PTS'].expanding().mean().shift(1)
-bron_df['AVG_REB'] = bron_df['REB'].expanding().mean().shift(1)
-bron_df['AVG_AST'] = bron_df['AST'].expanding().mean().shift(1)
+# # Construct features and labels. TODO --> PROJECTED MINUTES, OPPOSING DEFENSE, AGE
+# features = bron_df[['AVG_PTS', 'AVG_REB', 'AVG_AST']].values
+# labels = bron_df['PTS'].values
 
-# Replace with career avg down the line.
-bron_df['AVG_PTS'] = bron_df['AVG_PTS'].fillna(bron_df['PTS'])
-bron_df['AVG_REB'] = bron_df['AVG_REB'].fillna(bron_df['REB'])
-bron_df['AVG_AST'] = bron_df['AVG_AST'].fillna(bron_df['AST'])
-print(bron_df)
+# # Split data into training and test sets
+# X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=69)
 
-# Fetch team defensive stats for a season
+# # Normalize the features using StandardScaler
+# scaler = StandardScaler()
+# X_train = scaler.fit_transform(X_train)
+# X_test = scaler.transform(X_test)
 
-#team_defense = leaguedashptteamdefend.LeagueDashPtTeamDefend(season='2022-23')
-#team_defense_df = team_defense.get_data_frames()[0]
-#print(team_defense_df)
+# lebron_pred = Sequential([
+#     Dense(16, input_shape = (3,)),
+#     Dense(8, activation = 'relu'),
+#     Dense(1)
+# ])
 
-# BOX SCORE DEFENSE NOT WORKING FOR NOW.
-# box_defense = boxscoredefensive.BoxScoreDefensive(game_id = '0022201228')
-# box_defense_df = box_defense.get_data_frames()[0]
-# print(box_defense_df)
+# lebron_pred.compile(optimizer = 'adam', loss = 'mse', metrics = ['mae'])
+# history = lebron_pred.fit(X_train, y_train, epochs=50, validation_split=0.2)
+# loss, mae = lebron_pred.evaluate(X_test, y_test)
 
-# Find a specific game.
-# game = leaguegamefinder.LeagueGameFinder(player_or_team_abbreviation='P', team_id_nullable = '1612709932').get_data_frames()[0]
-# print(game)
+# lebron_pred.save('lebron_model.h5')
 
-#stats = playercareerstats.PlayerCareerStats(per_mode36='PerGame', player_id='2544').get_data_frames()[0]
-#print(stats)
+# # Load the saved model
+# loaded_model = load_model('lebron_model.h5')
 
-#nba_guys = players.get_players()
-#sorted_players = sorted(nba_guys, key=lambda player: player['id'])
-#print(sorted_players)
+# # Prepare a new input for the model
+# new_input = [[25.0, 7.0, 7.0]]  # replace with the actual averages for points, rebounds, and assists
 
-#roto = gamerotation.GameRotation(game_id='0022201228').get_data_frames()[0]
-#print(roto)
+# # Don't forget to scale the new input with the same scaler used on the training data
+# new_input = scaler.transform(new_input)
+
+# # Use the model to make a prediction
+# prediction = loaded_model.predict(new_input)
+
+# print(f'Predicted points: {prediction[0][0]}')
+
+# print(f'Test Mean Absolute Error: {mae}')
+# plt.figure(figsize=(12, 6))
+# plt.plot(history.history['loss'])
+# plt.plot(history.history['val_loss'])
+# plt.title('Model loss')
+# plt.ylabel('Loss')
+# plt.xlabel('Epoch')
+# plt.legend(['Train', 'Validation'], loc='upper right')
+# plt.show()
+
