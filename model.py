@@ -13,33 +13,45 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from tensorflow.keras.models import load_model
 
+bron_df = pd.read_csv('med_data.csv')
 
-# # Construct features and labels. TODO --> PROJECTED MINUTES, OPPOSING DEFENSE, AGE
-# features = bron_df[['AVG_PTS', 'AVG_REB', 'AVG_AST']].values
-# labels = bron_df['PTS'].values
+# Construct features and labels. TODO --> PROJECTED MINUTES, OPPOSING DEFENSE, AGE
+features = bron_df[['AVG_PTS', 'AVG_REB', 'AVG_AST', 'AVG_MIN']].values
+labels = bron_df['PTS'].values
 
-# # Split data into training and test sets
-# X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=69)
+# Split data into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=69)
 
-# # Normalize the features using StandardScaler
-# scaler = StandardScaler()
-# X_train = scaler.fit_transform(X_train)
-# X_test = scaler.transform(X_test)
+# Normalize the features using StandardScaler
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
 
-# lebron_pred = Sequential([
-#     Dense(16, input_shape = (3,)),
-#     Dense(8, activation = 'relu'),
-#     Dense(1)
-# ])
+lebron_pred = Sequential([
+    Dense(32, input_shape = (4,)),
+    Dense(16, activation = 'relu'),
+    Dense(8, activation = 'relu'),
+    Dense(1)
+])
 
-# lebron_pred.compile(optimizer = 'adam', loss = 'mse', metrics = ['mae'])
-# history = lebron_pred.fit(X_train, y_train, epochs=50, validation_split=0.2)
-# loss, mae = lebron_pred.evaluate(X_test, y_test)
+lebron_pred.compile(optimizer = 'adam', loss = 'mse', metrics = ['mae'])
+history = lebron_pred.fit(X_train, y_train, epochs=50, validation_split=0.2)
+loss, mae = lebron_pred.evaluate(X_test, y_test)
 
-# lebron_pred.save('lebron_model.h5')
+print(f'Test Mean Absolute Error: {mae}')
+plt.figure(figsize=(12, 6))
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Model loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Validation'], loc='upper right')
+plt.show()
+
+lebron_pred.save('med_model.h5')
 
 # # Load the saved model
-# loaded_model = load_model('lebron_model.h5')
+# loaded_model = load_model('random.h5')
 
 # # Prepare a new input for the model
 # new_input = [[25.0, 7.0, 7.0]]  # replace with the actual averages for points, rebounds, and assists

@@ -17,7 +17,7 @@ all_players_df = pd.DataFrame(all_players)
 active_players_df = all_players_df[all_players_df['is_active'] == True]
 
 # Select a subset of players for testing. You can modify this.
-players_to_use = active_players_df
+players_to_use = active_players_df.sample(n=250)
 
 def get_player_data(player_id):
     player_log = playergamelog.PlayerGameLog(player_id=player_id, season=SeasonAll.all, season_type_all_star='Regular Season')
@@ -47,7 +47,7 @@ for _, player in players_to_use.iterrows():
 
 # Combine all dataframes
 all_data_df = pd.concat(all_player_data, ignore_index=True)
-all_data_df.to_csv('my_data_big.csv', index=False)
+all_data_df.to_csv('med_data.csv', index=False)
 
 # Fetch team defensive stats for a season
 
